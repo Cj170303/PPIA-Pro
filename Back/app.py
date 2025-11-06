@@ -20,11 +20,48 @@ from preguntas_loader import Preguntas
 # -----------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "quiz.db")
+
+def ensure_schema():
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        uniandes_code TEXT NOT NULL,
+        magistral TEXT NOT NULL,
+        complementarios TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    );
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS interactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        question_id INTEGER NOT NULL,
+        success INTEGER NOT NULL,
+        ts TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+    """)
+    con.commit()
+    con.close()
+
+ensure_schema()
+
 LOG_CSV = os.path.join(BASE_DIR, "records.csv")
 FRONT_DIR = os.path.join(os.path.dirname(BASE_DIR), "Front")
 IMAGES_DIR = os.path.join(BASE_DIR, "imagenes")  # <— para logos/salida.png
 
 app = Flask(__name__, static_folder=FRONT_DIR, static_url_path="/")
+# Cookies de sesión seguras para Render (https)
+app.config.update(
+    SESSION_COOKIE_SAMESITE="Lax",   # Lax es suficiente si front y back están en el mismo dominio
+    SESSION_COOKIE_SECURE=True,      # True en Render (HTTPS). En local puedes desactivarlo con env.
+    SESSION_COOKIE_NAME="ppia_session"
+)
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key_change_me")
 CORS(app, supports_credentials=True)
 
