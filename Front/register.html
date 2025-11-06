@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>PPIA ChatBot · Registro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <div class="container">
+    <header class="app">
+      <div class="brand">
+        <h1>PPIA ChatBot</h1>
+      </div>
+      <div class="logos">
+        <img src="/assets/logo_uniandes.png" alt="Logo Uniandes">
+        <img src="/assets/logo_facultad.png" alt="Logo Facultad de Economía">
+      </div>
+    </header>
+
+    <div class="card" style="max-width:720px; margin:auto;">
+      <h2>Crear cuenta</h2>
+
+      <div class="row">
+        <div class="mt" style="flex:1; min-width:260px;">
+          <label class="label">Nombre completo</label>
+          <input class="input" id="reg-name" />
+        </div>
+        <div class="mt" style="flex:1; min-width:260px;">
+          <label class="label">Correo Uniandes</label>
+          <input class="input" id="reg-email" placeholder="tu@uniandes.edu.co" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="mt" style="flex:1; min-width:200px;">
+          <label class="label">Código Uniandes</label>
+          <input class="input" id="reg-code" />
+        </div>
+        <div class="mt" style="flex:1; min-width:200px;">
+          <label class="label">Magistral</label>
+          <select id="reg-magistral" class="input"></select>
+        </div>
+        <div class="mt" style="flex:1; min-width:200px;">
+          <label class="label">Complementarios</label>
+          <select id="reg-complementarios" class="input"></select>
+        </div>
+      </div>
+
+      <div class="mt">
+        <label class="label">Contraseña</label>
+        <input class="input" id="reg-pass" type="password" />
+      </div>
+
+      <div class="mt">
+        <button class="btn btn-primary" id="btn-register">Crear cuenta</button>
+        <a class="btn btn-outline" href="index.html" style="margin-left:8px;">← Volver al inicio</a>
+      </div>
+      <p class="small mt">Al crear la cuenta aceptas los términos académicos del curso.</p>
+    </div>
+  </div>
+
+  <script src="register.js"></script>
+</body>
+</html>

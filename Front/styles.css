@@ -1,0 +1,110 @@
+:root {
+  --bg: #0f172a;
+  --card: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #22d3ee;
+  --ok: #34d399;
+  --bad: #f87171;
+  --ring: #1fb6ff33;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue";
+  background: linear-gradient(180deg, #0b1020, #0f172a);
+  color: var(--text);
+}
+
+.container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 24px;
+  background: rgba(17,24,39,0.6);
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+header.app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.brand {
+  display:flex; align-items:center; gap:12px;
+}
+.brand h1 { margin:0; font-size: 22px; }
+.logos { display:flex; gap:12px; align-items:center; }
+.logos img { height:40px; width:auto; display:block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+
+h1, h2 { margin-top: 0; }
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.card {
+  background: var(--card); border: 1px solid #1f2937; border-radius: 14px; padding: 16px;
+}
+.input, select, button {
+  width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #293243;
+  background: #0b1220; color: var(--text); outline: none;
+}
+.input:focus, select:focus { box-shadow: 0 0 0 6px var(--ring); border-color: #0ea5b6; }
+
+button { cursor: pointer; transition: transform .04s ease, box-shadow .2s ease, background .2s ease; }
+
+/* Botones nuevos */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 12px 16px; gap:8px; border-radius: 12px; font-weight: 700; border: 1px solid #1f2a3c;
+  background: linear-gradient(180deg,#0f2a33,#0c1d28);
+  box-shadow: 0 6px 16px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: linear-gradient(180deg,#1fd3ff,#16b2d0);
+  color: #05202b; border-color: #0ea5b6;
+}
+.btn-ghost {
+  background: transparent; border: 1px dashed #264155; color: var(--accent);
+}
+.btn-outline {
+  background: #0b1220; border: 1px solid #2a4254; color: var(--text);
+}
+
+.label { font-size: 14px; color: var(--muted); margin-bottom: 6px; display: block; }
+.badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #0b2430; color: var(--accent); border: 1px solid #113746;}
+.ok { color: var(--ok); font-weight:600;}
+.bad { color: var(--bad); font-weight:600;}
+.list { display:flex; flex-wrap: wrap; gap: 8px; }
+hr { border: none; border-top: 1px solid #1f2937; margin: 16px 0; }
+.center { text-align: center; }
+.mt { margin-top: 16px; }
+.small { font-size: 12px; color: var(--muted); }
+.question {
+  padding: 16px; background: #0c1322; border: 1px dashed #1f2a3c; border-radius: 12px;
+}
+.stat-grid {
+  display:grid; gap:12px; grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+}
+.stat {
+  background:#0b1220; border:1px solid #1f2a3c; padding:14px; border-radius:14px;
+}
+.stat .value { font-size:28px; font-weight:800; }
+.stat .hint { color: var(--muted); font-size:12px; }
+
+/* Modal de despedida */
+#bye-overlay {
+  position: fixed; inset: 0; display:none; align-items:center; justify-content:center;
+  background: rgba(0,0,0,.6); z-index: 9999;
+}
+.bye-card {
+  width:min(720px,92vw); background: #0c1322; border:1px solid #1f2a3c; border-radius:20px; padding:24px;
+  text-align:center; box-shadow: 0 16px 60px rgba(0,0,0,.45);
+}
+.bye-card img { max-width: 100%; height:auto; border-radius:12px; margin-top:12px; }
+.bye-card h3 { margin:12px 0 6px; }
+.bye-card p { margin:0 0 16px; color: var(--muted); }

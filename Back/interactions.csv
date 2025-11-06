@@ -1,0 +1,14 @@
+timestamp,user_id,email,question_id,success
+2025-11-05T01:58:03.381258,2,ejemplo@uniandes.edu.co,1,1
+2025-11-05T01:58:07.478074,2,ejemplo@uniandes.edu.co,3,0
+2025-11-05T01:58:10.895301,2,ejemplo@uniandes.edu.co,2,0
+2025-11-05T01:58:15.569723,2,ejemplo@uniandes.edu.co,3,0
+2025-11-05T01:58:18.645003,2,ejemplo@uniandes.edu.co,3,1
+2025-11-05T01:58:22.876638,2,ejemplo@uniandes.edu.co,2,1
+2025-11-05T02:15:31.316311,2,ejemplo@uniandes.edu.co,8,0
+2025-11-05T02:15:35.401206,2,ejemplo@uniandes.edu.co,7,0
+2025-11-05T02:17:17.416430,1,c.carrascalg@uniandes.edu.co,10,1
+2025-11-05T22:27:43.913820,1,c.carrascalg@uniandes.edu.co,174,0
+2025-11-06T01:28:03.355186,1,c.carrascalg@uniandes.edu.co,436,0
+2025-11-06T01:50:22.785300,1,c.carrascalg@uniandes.edu.co,270,0
+2025-11-06T01:51:10.442043,1,c.carrascalg@uniandes.edu.co,304,0

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>PPIA ChatBot · Preguntas</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    window.MathJax = { tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]} };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header class="app">
+      <div class="brand">
+        <h1 style="margin:0;">PPIA ChatBot</h1>
+      </div>
+      <div class="logos">
+        <a class="btn btn-outline" href="dashboard.html">← Volver al panel</a>
+        <img src="/assets/logo_uniandes.png" alt="Uniandes">
+        <img src="/assets/logo_facultad.png" alt="Facultad">
+      </div>
+    </header>
+
+    <div class="card">
+      <div id="q-meta" class="small"></div>
+      <div id="q-box" class="question mt">Cargando pregunta…</div>
+      <div class="row mt">
+        <div style="flex:1; min-width:200px;">
+          <label class="label">Tu respuesta (letra)</label>
+          <input class="input" id="inp-answer" placeholder="a / b / c / d ..." />
+        </div>
+        <div style="width:180px; align-self:flex-end;">
+          <button id="btn-send" class="btn btn-primary">Enviar</button>
+        </div>
+      </div>
+      <div id="feedback" class="mt"></div>
+      <div class="row mt" id="continue-row" style="display:none; gap:12px;">
+        <button id="btn-yes" class="btn btn-primary">Continuar</button>
+        <button id="btn-no" class="btn btn-outline">Terminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay de despedida (sin temporizador) -->
+  <div id="bye-overlay">
+    <div class="bye-card">
+      <h3>¡Gracias por usar PPIA ChatBot! 🎓</h3>
+      <p>Puedes volver al panel cuando quieras.</p>
+      <img src="/assets/salida.png" alt="Salida">
+      <div class="mt">
+        <a id="bye-go" class="btn btn-primary" href="dashboard.html">Volver al panel</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
+

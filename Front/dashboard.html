@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>PPIA ChatBot · Panel</title>
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <div class="container">
+    <header class="app">
+      <div class="brand">
+        <h1 style="margin:0;">PPIA ChatBot</h1>
+      </div>
+      <div class="logos">
+        <img src="/assets/logo_uniandes.png" alt="Logo Uniandes">
+        <img src="/assets/logo_facultad.png" alt="Logo Facultad de Economía">
+        <button id="btn-logout" class="btn btn-outline" style="margin-left:12px;">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div class="card mt">
+      <h2>1) Selecciona tu semana</h2>
+      <div class="row">
+        <div style="flex:1; min-width:240px;">
+          <label class="label">Semana</label>
+          <input class="input" id="inp-week" type="number" min="1" max="20" placeholder="p.ej. 3" />
+        </div>
+        <div style="width:200px; align-self:flex-end;">
+          <button id="btn-save-week" class="btn btn-primary">Guardar semana</button>
+        </div>
+      </div>
+      <p id="week-status" class="small"></p>
+    </div>
+
+    <div class="card mt">
+      <h2>2) Tema y Dificultad</h2>
+      <p class="small">Una vez guardes tu semana, se mostrarán los temas y dificultades permitidos.</p>
+      <div class="row">
+        <div style="flex:1; min-width:240px;">
+          <label class="label">Tema(s) (separados por coma)</label>
+          <input class="input" id="inp-theme" placeholder="ej: lógica, proposiciones" />
+          <div id="temas-list" class="list mt"></div>
+        </div>
+        <div style="width:220px;">
+          <label class="label">Dificultad</label>
+          <select id="sel-dif" class="input"></select>
+        </div>
+      </div>
+      <div class="mt">
+        <button class="btn btn-primary" id="btn-start">Empezar quiz</button>
+      </div>
+      <p id="topics-hint" class="small mt"></p>
+    </div>
+
+    <div class="card mt">
+      <h2>Tus estadísticas</h2>
+      <div id="stats" class="stat-grid"></div>
+      <p class="small mt">Estas métricas se calculan sobre tus últimas 200 respuestas.</p>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
