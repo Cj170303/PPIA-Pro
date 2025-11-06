@@ -494,10 +494,9 @@ def serve_front(path):
 
 
 if __name__ == "__main__":
-    import sys
-    port = 5000
-    if "--port" in sys.argv:
-        idx = sys.argv.index("--port")
-        if idx + 1 < len(sys.argv):
-            port = int(sys.argv[idx + 1])
-    app.run(host="0.0.0.0", port=port, debug=True)
+    import os
+    # Usa el puerto que ponga Render si existiera; 5000 para local
+    port = int(os.environ.get("PORT", "5000"))
+    # Activa debug sólo si FLASK_DEBUG=1 (útil en local)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=port, debug=debug)
