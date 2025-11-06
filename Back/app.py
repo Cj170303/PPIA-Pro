@@ -51,6 +51,8 @@ def ensure_schema():
 
 ensure_schema()
 
+
+
 LOG_CSV = os.path.join(BASE_DIR, "records.csv")
 FRONT_DIR = os.path.join(os.path.dirname(BASE_DIR), "Front")
 IMAGES_DIR = os.path.join(BASE_DIR, "imagenes")  # <— para logos/salida.png
