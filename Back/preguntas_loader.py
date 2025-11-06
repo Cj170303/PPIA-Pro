@@ -8,13 +8,70 @@ from html import escape
 # Carga y parseo de Preguntas.tex
 # ---------------------------
 
+import unicodedata
+
+def _strip_accents(s: str) -> str:
+    """Quita acentos para comparar en minúsculas."""
+    return "".join(c for c in unicodedata.normalize("NFD", s)
+                   if unicodedata.category(c) != "Mn")
+
+
+# Mapa MANUAL de canónicos (puedes ampliarlo cuando quieras).
+# La clave se guarda sin acentos y en minúsculas.
+THEMES_CANON = {
+    # conjuntos
+    "conjunto": "Conjuntos",
+    "conjuntos": "Conjuntos",
+
+    # lógica y cercanos
+    "logica": "Lógica",
+    "lógica": "Lógica",   # por si acaso viene ya con acento
+
+    # proposiciones
+    "proposiciones": "Proposiciones",
+    "proposiciones2": "Proposiciones",
+
+    # otros comunes (ajusta libremente)
+    "argumentos": "Argumentación",
+    "argumentación": "Argumentación",
+    "argumentacion": "Argumentación",
+    "cuantificadores": "Cuantificadores",
+    "demostraciones": "Demostraciones",
+    "exploracion": "Exploración",
+    "exploración": "Exploración",
+    "funciones": "Funciones",
+    "implicaciones": "Implicaciones",
+    "indices": "Índices",
+    "índices": "Índices",
+    "sumatorias": "Sumatorias",
+    "traducciones": "Traducciones",
+    "preferencias": "Preferencias",
+    "utilidad": "Utilidad",
+}
+
+def canon_tema(raw: str) -> str:
+    """
+    Devuelve el nombre de tema canónico para mostrar/almacenar.
+    - recorta espacios
+    - baja a minúsculas sin acentos para buscar en el mapa
+    - si no está en el mapa, devuelve 'Title Case' del texto original limpio
+    """
+    s = (raw or "").strip()
+    if not s:
+        return ""
+    key = _strip_accents(s).lower()
+    if key in THEMES_CANON:
+        return THEMES_CANON[key]
+    # Fallback: lo dejamos en formato Título a partir del original
+    return s[:1].upper() + s[1:].lower()
+
 def load_preguntas_from_latex(file_name: str):
     """
     Lee el archivo LaTeX y extrae preguntas definidas con el entorno question.
     Estructura de cada pregunta:
       {id}{tema(s)}{dif}{res(s)}{week}{enunciado con enumerate}
     Devuelve: dict[int] -> {
-        'tema': str,
+        'tema': str,                 # <-- temáticas YA CANONIZADAS y unificadas
         'dif': int,
         'res': list[str],
         'week': int,
@@ -37,38 +94,76 @@ def load_preguntas_from_latex(file_name: str):
         week = int(week_str)
         res_list = [r.strip() for r in res_str.split(',')]
 
-        # Extraer opciones del enumerate
-        opts = {}
+        # ---- CANONIZACIÓN DE TEMAS ----
+        raw_topics = [t.strip() for t in tema.split(",") if t.strip()]
+        canon_set = set()
+        for t in raw_topics:
+            ct = canon_tema(t)
+            if ct:
+                canon_set.add(ct)
+        canon_topics = ",".join(sorted(canon_set))  # orden consistente
+
+        # -------- Opciones del enumerate (sin duplicar letras) --------
+        # Captura el bloque interno de enumerate
         enum_match = re.search(r"\\begin\{enumerate\}([\s\S]+?)\\end\{enumerate\}", body)
         enum_src = enum_match.group(1) if enum_match else ""
-        items = re.findall(r"\\item\s*([a-zA-Z])\)\s*([\s\S]*?)(?=(\\item|$))", enum_src)
-        for letra, texto, _ in items:
-            texto_clean = " ".join(texto.strip().split())
-            opts[letra.lower()] = texto_clean
 
-        # El enunciado sin el enumerate
+        # Soporta "\item a) ..." y toma el texto hasta el siguiente \item
+        items = re.findall(r"\\item\s*([A-Za-z])\)\s*([\s\S]*?)(?=(\\item|$))", enum_src)
+
+        # Guardamos también el texto “original” de cada opción por si lo necesitas
+        opts = {}
+
+        # --- utilitaria: arregla $...$ y $$...$$ para que MathJax/Pandoc no sufran
+        def _fix_inline_dollars(tex: str) -> str:
+            tex = tex.strip()
+            # Normaliza $$...$$ a \[...\] (bloque)
+            tex = re.sub(r"\$\$([\s\S]*?)\$\$", r"\\[\1\\]", tex)
+
+            # Si queda un número impar de '$', recorta un $ colgante al final (defensa)
+            if tex.count("$") % 2 == 1:
+                tex = tex.rstrip("$")
+
+            # Reemplaza $...$ (inline) por \( ... \)
+            tex = re.sub(r"\$([^$]+)\$", r"\\(\1\\)", tex)
+            return tex
+
+        # --- Enunciado sin el enumerate (como ya lo tenías)
         body_no_enum = re.sub(r"\\begin\{enumerate\}([\s\S]+?)\\end\{enumerate\}", "", body, flags=re.DOTALL).strip()
         body_no_enum = sanitize_latex_fragment(body_no_enum)
-
-        # Render con Pandoc
         html = latex_to_html(body_no_enum)
 
-        # Opciones (sin duplicar "a)")
-        if opts:
-            html += "<ol type='a' style='padding-left:1.5rem; margin-top:.5rem;'>\n"
-            for k in sorted(opts.keys()):
-                txt = re.sub(r'^[A-Za-z]\)\s*', '', opts[k]).strip()
-                html += f"<li>{escape(txt)}</li>\n"
-            html += "</ol>"
+        # --- Construye el <ol> de opciones renderizando cada li con Pandoc
+        if items:
+            html += "<ol type='a' class='options-list' style='padding-left:1.5rem; margin-top:.5rem;'>\n"
+            for letra, texto, _ in items:
+                # elimina "a)" inicial si vino duplicado en el banco
+                txt = re.sub(r'^[A-Za-z]\)\s*', '', texto).strip()
+                opts[letra.lower()] = " ".join(txt.split())
 
+                # prepara el LaTeX del li
+                txt = _fix_inline_dollars(txt)
+                txt = sanitize_latex_fragment(txt)
+
+                # convierte con Pandoc para que quede igual de “bonito” que el enunciado
+                li_html = latex_to_html(txt).strip()
+
+                # Si Pandoc envolvió en <p>...</p>, lo quitamos para no anidar párrafos en <li>
+                li_html = re.sub(r'^<p>([\s\S]*?)</p>\s*$', r'\1', li_html)
+
+                html += f"<li>{li_html}</li>\n"
+            html += "</ol>\n"
+
+        # --- Guarda estructura
         preguntas[qid] = {
-            "tema": ",".join([t.strip() for t in tema.split(",")]),
+            "tema": canon_topics,   # <-- YA UNIFICADO
             "dif": dif,
             "res": res_list,
             "week": week,
             "enunciado_html": html,
             "opts": opts
         }
+
     return preguntas
 
 

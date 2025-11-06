@@ -1,3 +1,4 @@
+# app.py
 # -*- coding: utf-8 -*-
 import os
 import csv
@@ -78,23 +79,52 @@ def retrieve_difs_for_temas(temas, week: int):
 
 def pick_next_question(user_week, selected_theme, selected_difficulty, answered_ok_ids):
     """
-    Selecciona una pregunta:
+    Selecciona la siguiente pregunta con estas reglas:
       - tema ∩ selected_theme != ∅
       - week <= user_week
       - dif <= selected_difficulty
-      - si ya fue contestada correctamente (en esta sesión), no repetir
+      - NO repetir las que ya fueron contestadas correctamente en esta sesión
+      - PRIORIDAD: preguntas nunca vistas históricamente por este usuario
+        (se consulta la tabla SQLite 'interactions')
+      - Si no hay no-vistas, se elige entre las candidatas restantes
+      - Selección aleatoria entre el conjunto final
     """
-    temas = set([t.strip() for t in selected_theme.split(",") if t.strip()])
+    import random
+
+    # 1) Filtros base por tema, semana y dificultad
+    temas = set([t.strip() for t in (selected_theme or "").split(",") if t.strip()])
     candidates = []
     for qid, data in Preguntas.items():
         q_temas = set([t.strip() for t in data["tema"].split(",")])
         if q_temas & temas and data["week"] <= user_week and data["dif"] <= selected_difficulty:
-            if qid not in answered_ok_ids:
+            if qid not in (answered_ok_ids or []):  # no repetir acertadas en esta sesión
                 candidates.append(qid)
+
     if not candidates:
         return None
-    import random
-    return random.choice(candidates)
+
+    # 2) Priorizar preguntas "no vistas" históricamente por el usuario (en SQLite)
+    seen_by_user = set()
+    try:
+        # Requiere sesión activa
+        uid = session.get("user_id", None)
+        if uid is not None:
+            con = get_db()
+            rows = con.execute(
+                "SELECT DISTINCT question_id FROM interactions WHERE user_id = ?",
+                (uid,)
+            ).fetchall()
+            con.close()
+            seen_by_user = {int(r["question_id"]) for r in rows}
+    except Exception:
+        # Si algo falla, no bloqueamos el flujo (simplemente no priorizamos)
+        seen_by_user = set()
+
+    unseen = [qid for qid in candidates if qid not in seen_by_user]
+    pool = unseen if unseen else candidates
+
+    return random.choice(pool)
+
 
 def validate_answer(user_response: str, qid: int):
     """
@@ -198,9 +228,15 @@ def set_week():
         week = int(data.get("week"))
     except:
         return jsonify({"error": "Semana inválida"}), 400
-    session["user_week"] = week
-    return jsonify({"ok": True})
 
+    # Normalizamos y acotamos: 1 <= semana <= 16
+    if week < 1:
+        week = 1
+    if week > 16:
+        week = 16
+
+    session["user_week"] = week
+    return jsonify({"ok": True, "week": week})
 @app.get("/api/themes_difs")
 def themes_difs():
     if not require_login():
@@ -267,14 +303,18 @@ def get_question():
 def answer():
     if not require_login():
         return jsonify({"error": "No autenticado"}), 401
+
     data = request.get_json() or {}
     user_resp = (data.get("answer") or "").strip()
+
     qid = session.get("current_qid")
     if not qid:
         return jsonify({"error": "No hay pregunta activa"}), 400
 
+    # 1) Validar respuesta
     ok = validate_answer(user_resp, qid)
 
+    # 2) Persistir interacción en SQLite
     con = get_db()
     try:
         con.execute("""
@@ -288,6 +328,7 @@ def answer():
     finally:
         con.close()
 
+    # 3) Log en CSV (opcional para auditoría)
     with open(INTERACTIONS_CSV, "a", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow([
             datetime.utcnow().isoformat(),
@@ -297,11 +338,38 @@ def answer():
             1 if ok else 0
         ])
 
+    # 4) Evitar repetir en esta sesión las preguntas acertadas
     if ok:
         answered_ok = set(session.get("answered_ok_ids") or [])
         answered_ok.add(qid)
         session["answered_ok_ids"] = list(answered_ok)
 
+    # 5) --- Dificultad adaptativa (regla 3 de 4) ---
+    # Guardamos las últimas 4 respuestas (1 = acierto, 0 = fallo)
+    history = session.get("recent_results", [])
+    history.append(1 if ok else 0)
+    if len(history) > 4:
+        history = history[-4:]
+    session["recent_results"] = history
+
+    # Ajuste de dificultad según el desempeño reciente
+    # Límites dinámicos: min 1, max = máximo 'dif' presente en el banco
+    try:
+        max_dif_global = max(int(p["dif"]) for p in Preguntas.values())
+    except Exception:
+        max_dif_global = 3  # fallback conservador
+
+    current_dif = int(session.get("selected_difficulty") or 1)
+
+    if len(history) == 4:
+        score = sum(history)  # aciertos en las últimas 4
+        if score >= 3 and current_dif < max_dif_global:
+            current_dif += 1
+        elif score <= 1 and current_dif > 1:
+            current_dif -= 1
+        session["selected_difficulty"] = current_dif  # actualizar en sesión
+
+    # 6) Respuesta al front
     return jsonify({
         "correct": ok,
         "message": "¡Correcto! ¿Deseas continuar?" if ok else "Incorrecta. ¿Deseas continuar?"

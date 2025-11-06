@@ -24,7 +24,7 @@
       <div class="row">
         <div style="flex:1; min-width:240px;">
           <label class="label">Semana</label>
-          <input class="input" id="inp-week" type="number" min="1" max="20" placeholder="p.ej. 3" />
+          <input class="input" id="inp-week" type="number" min="1" max="16" placeholder="p.ej. 3" />
         </div>
         <div style="width:200px; align-self:flex-end;">
           <button id="btn-save-week" class="btn btn-primary">Guardar semana</button>
@@ -35,11 +35,11 @@
 
     <div class="card mt">
       <h2>2) Tema y Dificultad</h2>
-      <p class="small">Una vez guardes tu semana, se mostrarán los temas y dificultades permitidos.</p>
+      <p class="small">Después de guardar tu semana, selecciona uno o varios temas haciendo clic en las etiquetas.</p>
       <div class="row">
         <div style="flex:1; min-width:240px;">
-          <label class="label">Tema(s) (separados por coma)</label>
-          <input class="input" id="inp-theme" placeholder="ej: lógica, proposiciones" />
+          <label class="label">Tema(s) seleccionados</label>
+          <input class="input" id="inp-theme" placeholder="Selecciona abajo los temas…" readonly />
           <div id="temas-list" class="list mt"></div>
         </div>
         <div style="width:220px;">
@@ -50,7 +50,7 @@
       <div class="mt">
         <button class="btn btn-primary" id="btn-start">Empezar quiz</button>
       </div>
-      <p id="topics-hint" class="small mt"></p>
+      <p id="topics-hint" class="small mt">Haz clic en las etiquetas para agregarlas o quitarlas.</p>
     </div>
 
     <div class="card mt">

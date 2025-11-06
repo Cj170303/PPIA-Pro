@@ -35,16 +35,33 @@ let current = null;
 })();
 
 function renderQuestion(q) {
+  // Meta
   document.getElementById("q-meta").innerHTML = `
     <span class="badge">Tema(s): ${q.tema}</span>
     <span class="badge">Dif: ${q.dif}</span>
     <span class="badge">Semana: ${q.week}</span>
   `;
-  document.getElementById("q-box").innerHTML = q.html;
-  if (window.MathJax) window.MathJax.typeset();
+
+  // Contenido de la pregunta
+  const box = document.getElementById("q-box");
+  box.innerHTML = q.html;
+
+  // Reprocesar matemáticas solo dentro del contenedor
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    window.MathJax.typesetPromise([box]).catch(() => {});
+  } else if (window.MathJax && typeof window.MathJax.typeset === "function") {
+    // Fallback para builds que solo exponen typeset()
+    window.MathJax.typeset();
+  }
+
+  // Reset UI
   document.getElementById("feedback").textContent = "";
   document.getElementById("continue-row").style.display = "none";
   document.getElementById("inp-answer").value = "";
+
+  // (Opcional) Llevar foco al input
+  const ans = document.getElementById("inp-answer");
+  if (ans) ans.focus();
 }
 
 document.getElementById("btn-send").addEventListener("click", async () => {

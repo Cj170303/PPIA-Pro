@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ppia-chatbot
+    env: python
+    buildCommand: ""
+    startCommand: python app.py --port 10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+    plan: free

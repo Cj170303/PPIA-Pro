@@ -40,6 +40,7 @@ header.app {
 .brand h1 { margin:0; font-size: 22px; }
 .logos { display:flex; gap:12px; align-items:center; }
 .logos img { height:40px; width:auto; display:block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+.options-list li { margin: .25rem 0 .35rem; line-height: 1.6; }
 
 h1, h2 { margin-top: 0; }
 .row { display: flex; gap: 16px; flex-wrap: wrap; }
@@ -108,3 +109,11 @@ hr { border: none; border-top: 1px solid #1f2937; margin: 16px 0; }
 .bye-card img { max-width: 100%; height:auto; border-radius:12px; margin-top:12px; }
 .bye-card h3 { margin:12px 0 6px; }
 .bye-card p { margin:0 0 16px; color: var(--muted); }
+/* chips seleccionables de temas */
+.badge.tag { cursor: pointer; transition: transform .05s ease, box-shadow .2s; }
+.badge.tag:hover { transform: translateY(-1px); }
+.badge.tag.selected {
+  background: #0ee1ff22;
+  border-color: #19c1d8;
+  box-shadow: 0 0 0 3px #1fb6ff33 inset;
+}
